@@ -323,4 +323,5 @@ from . import (
     zamba,
     zamba2,
     zoedepth,
+    parrot_audio,
 )

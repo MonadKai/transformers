@@ -693,6 +693,10 @@ _import_structure = {
         "OwlViTVisionConfig",
     ],
     "models.paligemma": ["PaliGemmaConfig"],
+    "models.parrot_audio": [
+        "ParrotAudioConfig",
+        "ParrotAudioEncoderConfig",
+    ],
     "models.patchtsmixer": ["PatchTSMixerConfig"],
     "models.patchtst": ["PatchTSTConfig"],
     "models.pegasus": [
@@ -3282,6 +3286,14 @@ else:
             "PaliGemmaProcessor",
         ]
     )
+    _import_structure["models.parrot_audio"].extend(
+        [
+            "ParrotAudioForConditionalGeneration", 
+            "ParrotQwen2ForCausalLM", 
+            "ParrotAudioPreTrainedModel",
+            "ParrotAudioEncoder",
+        ]
+    )
     _import_structure["models.patchtsmixer"].extend(
         [
             "PatchTSMixerForPrediction",
@@ -4942,6 +4954,29 @@ else:
     _import_structure["models.pop2piano"].append("Pop2PianoTokenizer")
     _import_structure["models.pop2piano"].append("Pop2PianoProcessor")
 
+
+try:
+    if not (
+        is_librosa_available()
+        and is_scipy_available()
+        and is_torch_available()
+    ):
+        raise OptionalDependencyNotAvailable()
+except OptionalDependencyNotAvailable:
+    from .utils import (
+        dummy_essentia_and_librosa_and_pretty_midi_and_scipy_and_torch_objects,
+    )
+
+    _import_structure["utils.dummy_essentia_and_librosa_and_pretty_midi_and_scipy_and_torch_objects"] = [
+        name
+        for name in dir(dummy_essentia_and_librosa_and_pretty_midi_and_scipy_and_torch_objects)
+        if not name.startswith("_")
+    ]
+else:
+    _import_structure["models.parrot_audio"].append("ParrotAudioFeatureExtractor")
+    _import_structure["models.parrot_audio"].append("ParrotAudioProcessor")
+
+
 try:
     if not is_torchaudio_available():
         raise OptionalDependencyNotAvailable()
@@ -5980,6 +6015,12 @@ if TYPE_CHECKING:
     )
     from .models.paligemma import (
         PaliGemmaConfig,
+    )
+    from .models.parrot_audio import (
+        ParrotAudioConfig,
+        ParrotAudioEncoderConfig,
+        ParrotAudioFeatureExtractor,
+        ParrotAudioProcessor,
     )
     from .models.patchtsmixer import (
         PatchTSMixerConfig,
@@ -8211,6 +8252,12 @@ if TYPE_CHECKING:
             PaliGemmaPreTrainedModel,
             PaliGemmaProcessor,
         )
+        from .models.parrot_audio import (
+            ParrotAudioForConditionalGeneration,
+            ParrotAudioPreTrainedModel,
+            ParrotQwen2ForCausalLM,
+            ParrotAudioEncoder,
+        )
         from .models.patchtsmixer import (
             PatchTSMixerForPrediction,
             PatchTSMixerForPretraining,
@@ -9544,6 +9591,21 @@ if TYPE_CHECKING:
             Pop2PianoFeatureExtractor,
             Pop2PianoProcessor,
             Pop2PianoTokenizer,
+        )
+
+    try:
+        if not (
+            is_librosa_available()
+            and is_scipy_available()
+            and is_torch_available()
+        ):
+            raise OptionalDependencyNotAvailable()
+    except OptionalDependencyNotAvailable:
+        from .utils.dummy_essentia_and_librosa_and_pretty_midi_and_scipy_and_torch_objects import *
+    else:
+        from .models.parrot_audio import (
+            ParrotAudioFeatureExtractor,
+            ParrotAudioProcessor,
         )
 
     try:

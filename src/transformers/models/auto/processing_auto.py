@@ -91,6 +91,8 @@ PROCESSOR_MAPPING_NAMES = OrderedDict(
         ("oneformer", "OneFormerProcessor"),
         ("owlv2", "Owlv2Processor"),
         ("owlvit", "OwlViTProcessor"),
+        ("parrot_audio", "ParrotAudioProcessor"),
+        ("parrot_audio_encoder", "ParrotAudioProcessor"),
         ("paligemma", "PaliGemmaProcessor"),
         ("phi4_multimodal", "Phi4MultimodalProcessor"),
         ("pix2struct", "Pix2StructProcessor"),
