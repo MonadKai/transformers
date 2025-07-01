@@ -197,7 +197,7 @@ class ParrotAudioEncoder(ParrotAudioPreTrainedModel):
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        xs_pad, olens, *_ = self.sense_voice_small(
+        xs_pad, olens, _ = self.sense_voice_small(
             input_features,
             ilens = audio_feature_lengths
         )
@@ -206,34 +206,23 @@ class ParrotAudioEncoder(ParrotAudioPreTrainedModel):
     # Ignore copy
     def _get_feat_extract_output_lengths(self, input_lengths: torch.LongTensor) -> tuple[torch.LongTensor, torch.LongTensor]:
         """
-        Computes the output length of the convolutional layers and the output length of the audio encoder
+        Computes the output length of the parrot audio encoder
         """
-        # input_lengths = (input_lengths - 1) // 2 + 1
-        # output_lengths = (input_lengths - 2) // 2 + 1
-        output_lengths = (input_lengths - 1) // self.config.adaptor_downsample_rate + 1
-        return input_lengths, output_lengths
+        return input_lengths, input_lengths
 
 
 class LinearAdaptor(nn.Module):
-    def __init__(self, downsample_rate: int, encoder_dim: int, llm_dim: int, ffn_dim: int = 2048, **kwargs):
+    def __init__(self, encoder_dim: int, ffn_dim: int, llm_dim: int, **kwargs):
         super().__init__()
-        self.k = downsample_rate
         self.encoder_dim = encoder_dim
+        self.ffn_dim = ffn_dim
         self.llm_dim = llm_dim
-        self.linear1 = nn.Linear(self.encoder_dim * self.k, ffn_dim)
+        self.linear1 = nn.Linear(self.encoder_dim, ffn_dim)
         self.relu = nn.ReLU()
         self.linear2 = nn.Linear(ffn_dim, self.llm_dim)
         self.final_norm = nn.LayerNorm(llm_dim)
 
-    def forward(self, x: torch.Tensor,  ilen: Optional[torch.Tensor] = None, **kwargs) -> tuple[torch.Tensor, torch.Tensor]:
-        batch_size, seq_len, dim = x.size()
-        num_frames_to_discard = seq_len % self.k
-        if num_frames_to_discard > 0:
-            x = x[:, :-num_frames_to_discard, :]
-        seq_len = x.size(1)
-
-        x = x.contiguous()
-        x = x.view(batch_size, seq_len // self.k, dim * self.k)
+    def forward(self, x: torch.Tensor, **kwargs) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.linear1(x)
         x = self.relu(x)
         x = self.linear2(x)
@@ -245,10 +234,9 @@ class ParrotAudioMultiModalProjector(nn.Module):
     def __init__(self, config: ParrotAudioConfig):
         super().__init__()
         self.adaptor = LinearAdaptor(
-            downsample_rate=config.audio_config.adaptor_downsample_rate,
             encoder_dim=config.audio_config.output_size,
+            ffn_dim=config.audio_config.adaptor_ffn_dim,
             llm_dim=config.text_config.hidden_size,
-            ffn_dim=config.audio_config.adaptor_ffn_dim
         )
 
     def forward(self, audio_features: torch.Tensor) -> torch.Tensor:
