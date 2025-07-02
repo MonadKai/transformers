@@ -697,6 +697,10 @@ _import_structure = {
         "ParrotAudioConfig",
         "ParrotAudioEncoderConfig",
     ],
+    "models.parrot2_audio": [
+        "Parrot2AudioConfig",
+        "Parrot2AudioEncoderConfig",
+    ],
     "models.patchtsmixer": ["PatchTSMixerConfig"],
     "models.patchtst": ["PatchTSTConfig"],
     "models.pegasus": [
@@ -3294,6 +3298,14 @@ else:
             "ParrotAudioEncoder",
         ]
     )
+    _import_structure["models.parrot2_audio"].extend(
+        [
+            "Parrot2AudioForConditionalGeneration",
+            "ParrotQwen3ForCausalLM",
+            "Parrot2AudioPreTrainedModel",
+            "Parrot2AudioEncoder",
+        ]
+    )
     _import_structure["models.patchtsmixer"].extend(
         [
             "PatchTSMixerForPrediction",
@@ -4975,6 +4987,8 @@ except OptionalDependencyNotAvailable:
 else:
     _import_structure["models.parrot_audio"].append("ParrotAudioFeatureExtractor")
     _import_structure["models.parrot_audio"].append("ParrotAudioProcessor")
+    _import_structure["models.parrot2_audio"].append("Parrot2AudioFeatureExtractor")
+    _import_structure["models.parrot2_audio"].append("Parrot2AudioProcessor")
 
 
 try:
@@ -6021,6 +6035,12 @@ if TYPE_CHECKING:
         ParrotAudioEncoderConfig,
         ParrotAudioFeatureExtractor,
         ParrotAudioProcessor,
+    )
+    from .models.parrot2_audio import (
+        Parrot2AudioConfig,
+        Parrot2AudioEncoderConfig,
+        Parrot2AudioFeatureExtractor,
+        Parrot2AudioProcessor,
     )
     from .models.patchtsmixer import (
         PatchTSMixerConfig,
@@ -8258,6 +8278,12 @@ if TYPE_CHECKING:
             ParrotQwen2ForCausalLM,
             ParrotAudioEncoder,
         )
+        from .models.parrot2_audio import (
+            Parrot2AudioForConditionalGeneration,
+            ParrotQwen3ForCausalLM,
+            Parrot2AudioPreTrainedModel,
+            Parrot2AudioEncoder,
+        )
         from .models.patchtsmixer import (
             PatchTSMixerForPrediction,
             PatchTSMixerForPretraining,
@@ -9606,6 +9632,10 @@ if TYPE_CHECKING:
         from .models.parrot_audio import (
             ParrotAudioFeatureExtractor,
             ParrotAudioProcessor,
+        )
+        from .models.parrot2_audio import (
+            Parrot2AudioFeatureExtractor,
+            Parrot2AudioProcessor,
         )
 
     try:

@@ -16,6 +16,20 @@ class ParrotAudioProcessor(metaclass=DummyObject):
         requires_backends(self, ["librosa", "scipy", "torch"])
 
 
+class Parrot2AudioFeatureExtractor(metaclass=DummyObject):
+    _backends = ["librosa", "scipy", "torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["librosa", "scipy", "torch"])
+
+
+class Parrot2AudioProcessor(metaclass=DummyObject):
+    _backends = ["librosa", "scipy", "torch"]
+
+    def __init__(self, *args, **kwargs):
+        requires_backends(self, ["librosa", "scipy", "torch"])
+
+
 class ParrotSenseVoiceFeatureExtractor(metaclass=DummyObject):
     _backends = ["librosa", "scipy", "torch"]
 
