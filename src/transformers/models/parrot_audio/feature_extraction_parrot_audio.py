@@ -20,16 +20,17 @@ import torch
 import torchaudio.compliance.kaldi as kaldi
 from torch.nn.utils.rnn import pad_sequence
 from transformers import FeatureExtractionMixin
+from typing import Optional
 
 
-def apply_cmvn(inputs, means, vars):
+def apply_cmvn(inputs: torch.Tensor, means: torch.Tensor, vars: torch.Tensor) -> torch.Tensor:
     device = inputs.device
     means = means.to(device)
     vars = vars.to(device)
     return (inputs + means) * vars
 
 
-def apply_lfr(inputs, lfr_m, lfr_n):
+def apply_lfr(inputs: torch.Tensor, lfr_m: int, lfr_n: int) -> torch.Tensor:
     T = inputs.shape[0]
     T_lfr = int(np.ceil(T / lfr_n))
     left_padding = inputs[0].repeat((lfr_m - 1) // 2, 1)
@@ -50,9 +51,9 @@ def apply_lfr(inputs, lfr_m, lfr_n):
 # TODO: direct use ParrotSenseVoiceFeatureExtractor, skip this class
 class ParrotAudioFeatureExtractor(FeatureExtractionMixin):
     def __init__(self, 
-        cmvn_file: str = None,
-        means: list[float] = None,
-        vars: list[float] = None,
+        means: list[float],
+        vars: list[float],
+        cmvn_file: Optional[str] = None,
         fs: int = 16000,
         window: str = "hamming",
         n_mels: int = 80,
@@ -60,9 +61,9 @@ class ParrotAudioFeatureExtractor(FeatureExtractionMixin):
         frame_shift: int = 10,
         filter_length_min: int = -1,
         filter_length_max: int = -1,
-        lfr_m: int = 1,
-        lfr_n: int = 1,
-        dither: float = 1.0,
+        lfr_m: int = 7,
+        lfr_n: int = 6,
+        dither: float = 0.0,
         snip_edges: bool = True,
         upsacle_samples: bool = True,
         **kwargs,
@@ -87,20 +88,20 @@ class ParrotAudioFeatureExtractor(FeatureExtractionMixin):
         )
 
     @cached_property
-    def _means(self):
+    def _means(self) -> torch.Tensor:
         return torch.as_tensor(self.means, dtype=torch.float32)
 
     @cached_property
-    def _vars(self):
+    def _vars(self) -> torch.Tensor:
         return torch.as_tensor(self.vars, dtype=torch.float32)
 
     @torch.no_grad()
     def __call__(self,
-            inputs: torch.Tensor,
-            input_lengths,
-            cmvn=None,
+            inputs: list[torch.Tensor],
+            input_lengths: list[int],
             **kwargs,
         ):
+        # input_lengths = [i.shape[0] for i in inputs]
         batch_size = len(inputs)
         feats = []
         feats_lens = []
@@ -115,30 +116,30 @@ class ParrotAudioFeatureExtractor(FeatureExtractionMixin):
             mat = kaldi.fbank(
                 waveform,
                 num_mel_bins=self.n_mels,
-                frame_length=min(self.frame_length,waveform_length/self.fs*1000),
+                frame_length=min(self.frame_length, waveform_length / self.fs * 1000),
                 frame_shift=self.frame_shift,
                 dither=self.dither,
                 energy_floor=0.0,
                 window_type=self.window,
                 sample_frequency=self.fs,
                 snip_edges=self.snip_edges,
-            )
+            )  # [T, n_mels]
 
             if self.lfr_m != 1 or self.lfr_n != 1:
                 mat = apply_lfr(mat, self.lfr_m, self.lfr_n)
-            mat = apply_cmvn(mat, self._means, self._vars)
+            mat = apply_cmvn(mat, self._means, self._vars)  # [feature_length, n_mels * 7]
             feat_length = mat.size(0)
             feats.append(mat)
             feats_lens.append(feat_length)
 
-        feats_lens = torch.as_tensor(feats_lens)
+        feats_lens = torch.as_tensor(feats_lens)  # [batch_size]
         max_len = feats_lens.max().item()
-        idxs = torch.arange(max_len).expand(feats_lens.size(0), max_len)
-        feature_attention_masks = idxs < feats_lens.unsqueeze(1)
+        idxs = torch.arange(max_len).expand(feats_lens.size(0), max_len)  # [batch_size, max_len]
+        feature_attention_masks = idxs < feats_lens.unsqueeze(1)  # [batch_size, max_len]
         if batch_size == 1:
-            feats_pad = feats[0][None, :, :]
+            feats_pad = feats[0][None, :, :]  # [1, feature_length, n_mels * 7]
         else:
-            feats_pad = pad_sequence(feats, batch_first=True, padding_value=0.0)
+            feats_pad = pad_sequence(feats, batch_first=True, padding_value=0.0)  # [batch_size, feature_length, n_mels * 7]
         return {'input_features': feats_pad, 'attention_mask': feature_attention_masks}
 
 
