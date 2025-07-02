@@ -19,7 +19,8 @@ import numpy as np
 import torch
 import torchaudio.compliance.kaldi as kaldi
 from torch.nn.utils.rnn import pad_sequence
-from transformers import FeatureExtractionMixin
+from transformers.feature_extraction_utils import BatchFeature
+from transformers.feature_extraction_utils import FeatureExtractionMixin
 from typing import Optional
 
 
@@ -100,7 +101,7 @@ class Parrot2AudioFeatureExtractor(FeatureExtractionMixin):
             inputs: list[torch.Tensor],
             input_lengths: list[int],
             **kwargs,
-        ):
+    ) -> BatchFeature:
         # input_lengths = [i.shape[0] for i in inputs]
         batch_size = len(inputs)
         feats = []
