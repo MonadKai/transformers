@@ -101,6 +101,7 @@ class ParrotAudioEncoderConfig(PretrainedConfig):
         sanm_shfit=0,
         selfattention_layer_type='sanm',
         tp_blocks=20,
+        init_std=0.02,
         # not in config.json `audio_config`
         **kwargs,
     ):
@@ -121,6 +122,7 @@ class ParrotAudioEncoderConfig(PretrainedConfig):
         self.sanm_shfit = sanm_shfit
         self.selfattention_layer_type = selfattention_layer_type
         self.tp_blocks = tp_blocks
+        self.init_std = init_std
 
 
 class ParrotAudioConfig(PretrainedConfig):
