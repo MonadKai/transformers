@@ -701,6 +701,9 @@ _import_structure = {
         "Parrot2AudioConfig",
         "Parrot2AudioEncoderConfig",
     ],
+    "models.parrot_sensevoice": [
+        "ParrotSenseVoiceConfig",
+    ],
     "models.patchtsmixer": ["PatchTSMixerConfig"],
     "models.patchtst": ["PatchTSTConfig"],
     "models.pegasus": [
@@ -3306,6 +3309,12 @@ else:
             "Parrot2AudioEncoder",
         ]
     )
+    _import_structure["models.parrot_sensevoice"].extend(
+        [
+            "ParrotSenseVoicePreTrainedModel",
+            "ParrotSenseVoiceEncoder",
+        ]
+    )
     _import_structure["models.patchtsmixer"].extend(
         [
             "PatchTSMixerForPrediction",
@@ -4989,6 +4998,8 @@ else:
     _import_structure["models.parrot_audio"].append("ParrotAudioProcessor")
     _import_structure["models.parrot2_audio"].append("Parrot2AudioFeatureExtractor")
     _import_structure["models.parrot2_audio"].append("Parrot2AudioProcessor")
+    _import_structure["models.parrot_sensevoice"].append("ParrotSenseVoiceFeatureExtractor")
+    _import_structure["models.parrot_sensevoice"].append("ParrotSenseVoiceProcessor")
 
 
 try:
@@ -6041,6 +6052,11 @@ if TYPE_CHECKING:
         Parrot2AudioEncoderConfig,
         Parrot2AudioFeatureExtractor,
         Parrot2AudioProcessor,
+    )
+    from .models.parrot_sensevoice import (
+        ParrotSenseVoiceConfig,
+        ParrotSenseVoiceFeatureExtractor,
+        ParrotSenseVoiceProcessor,
     )
     from .models.patchtsmixer import (
         PatchTSMixerConfig,
@@ -8283,6 +8299,10 @@ if TYPE_CHECKING:
             ParrotQwen3ForCausalLM,
             Parrot2AudioPreTrainedModel,
             Parrot2AudioEncoder,
+        )
+        from .models.parrot_sensevoice import (
+            ParrotSenseVoiceEncoder,
+            ParrotSenseVoicePreTrainedModel,
         )
         from .models.patchtsmixer import (
             PatchTSMixerForPrediction,

@@ -95,6 +95,7 @@ PROCESSOR_MAPPING_NAMES = OrderedDict(
         ("parrot_audio_encoder", "ParrotAudioProcessor"),
         ("parrot2_audio", "Parrot2AudioProcessor"),
         ("parrot2_audio_encoder", "Parrot2AudioProcessor"),
+        ("parrot_sensevoice", "ParrotSenseVoiceProcessor"),
         ("paligemma", "PaliGemmaProcessor"),
         ("phi4_multimodal", "Phi4MultimodalProcessor"),
         ("pix2struct", "Pix2StructProcessor"),
