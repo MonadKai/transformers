@@ -214,12 +214,9 @@ class Parrot2AudioEncoder(Parrot2AudioPreTrainedModel):
 class LinearAdaptor(nn.Module):
     def __init__(self, encoder_dim: int, ffn_dim: int, llm_dim: int, **kwargs):
         super().__init__()
-        self.encoder_dim = encoder_dim
-        self.ffn_dim = ffn_dim
-        self.llm_dim = llm_dim
-        self.linear1 = nn.Linear(self.encoder_dim, ffn_dim)
+        self.linear1 = nn.Linear(encoder_dim, ffn_dim)
         self.relu = nn.ReLU()
-        self.linear2 = nn.Linear(ffn_dim, self.llm_dim)
+        self.linear2 = nn.Linear(ffn_dim, llm_dim)
         self.final_norm = nn.LayerNorm(llm_dim)
 
     def forward(self, x: torch.Tensor, **kwargs) -> tuple[torch.Tensor, torch.Tensor]:
@@ -235,7 +232,7 @@ class Parrot2AudioMultiModalProjector(nn.Module):
         super().__init__()
         self.adaptor = LinearAdaptor(
             encoder_dim=config.audio_config.output_size,
-            ffn_dim=config.audio_config.adaptor_ffn_dim,
+            ffn_dim=config.adaptor_ffn_dim,
             llm_dim=config.text_config.hidden_size,
         )
 

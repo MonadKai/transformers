@@ -101,7 +101,6 @@ class Parrot2AudioEncoderConfig(PretrainedConfig):
         sanm_shfit=0,
         selfattention_layer_type='sanm',
         tp_blocks=20,
-        adaptor_ffn_dim=8192,
         # not in config.json `audio_config`
         **kwargs,
     ):
@@ -122,7 +121,6 @@ class Parrot2AudioEncoderConfig(PretrainedConfig):
         self.sanm_shfit = sanm_shfit
         self.selfattention_layer_type = selfattention_layer_type
         self.tp_blocks = tp_blocks
-        self.adaptor_ffn_dim = adaptor_ffn_dim
 
 
 class Parrot2AudioConfig(PretrainedConfig):
@@ -173,9 +171,11 @@ class Parrot2AudioConfig(PretrainedConfig):
         audio_config=None,
         text_config=None,
         audio_token_index=151665,
+        adaptor_ffn_dim=8192,
         **kwargs,
     ):
         self.audio_token_index = audio_token_index
+        self.adaptor_ffn_dim = adaptor_ffn_dim
 
         if isinstance(audio_config, dict):
             audio_config = Parrot2AudioEncoderConfig(**audio_config)
@@ -196,7 +196,6 @@ class Parrot2AudioConfig(PretrainedConfig):
                 sanm_shfit=0,
                 selfattention_layer_type='sanm',
                 tp_blocks=20,
-                adaptor_ffn_dim=8192,
             )
 
         self.audio_config = audio_config
