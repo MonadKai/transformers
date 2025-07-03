@@ -208,7 +208,31 @@ class Parrot2AudioConfig(PretrainedConfig):
             text_config = Qwen3Config(**text_config)
         elif text_config is None:
             # text_config = CONFIG_MAPPING["qwen3"]()
-            text_config = Qwen3Config()
+            text_config = Qwen3Config(
+                vocab_size=151936,
+                hidden_size=5120,
+                intermediate_size=17408,
+                num_hidden_layers=40,
+                num_attention_heads=40,
+                num_key_value_heads=8,
+                hidden_act="silu",
+                max_position_embeddings=45000,
+                initializer_range=0.02,
+                rms_norm_eps=1e-06,
+                use_cache=True,
+                tie_word_embeddings=False,
+                rope_theta=1000000.0,
+                rope_scaling=None,
+                use_sliding_window=False,
+                sliding_window=131072,
+                max_window_layers=40,
+                attention_dropout=0.0,
+                torch_dtype="bfloat16",
+                attention_bias=False,
+                bos_token_id=151643,
+                eos_token_id=151645,
+                head_dim=128,
+            )
         self.text_config = text_config
 
         super().__init__(**kwargs)
