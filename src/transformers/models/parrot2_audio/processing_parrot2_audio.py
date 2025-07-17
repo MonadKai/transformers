@@ -234,7 +234,7 @@ class Parrot2AudioProcessor(ProcessorMixin):
                     "{{ message['content'] }}<|im_end|>\n"
                 "{% else %}"
                     "{% for content in message['content'] %}"
-                        "{% if 'audio' in content or 'audio_url' in content %}"
+                        "{% if 'audio' in content or 'audio_url' in content or content['type'] == 'audio' %}"
                             "{% set audio_count.value = audio_count.value + 1 %}"
                             "<|vision_start|>[FAKE_AUDIO]<|vision_end|>"
                         "{% elif 'text' in content %}"
