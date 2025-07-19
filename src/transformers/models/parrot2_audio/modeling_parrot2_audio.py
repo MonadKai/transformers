@@ -811,4 +811,4 @@ class Parrot2AudioForConditionalGeneration(Parrot2AudioPreTrainedModel, Generati
         return self.language_model._reorder_cache(*args, **kwargs)
 
 
-__all__ = ["Parrot2AudioForConditionalGeneration", "ParrotQwen3ForCausalLM", "Parrot2AudioMultiModalProjector", "LinearAdaptor", "Parrot2AudioEncoder", "Parrot2AudioPreTrainedModel"]
+__all__ = ["Parrot2AudioForConditionalGeneration", "ParrotQwen3ForCausalLM", "Parrot2AudioMultiModalProjector", "Parrot2AudioEncoder", "Parrot2AudioPreTrainedModel"]
