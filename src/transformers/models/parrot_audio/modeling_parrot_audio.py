@@ -20,19 +20,20 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.utils.checkpoint
 from torch import nn
+
 from transformers.cache_utils import Cache
 from transformers.generation import GenerationMixin
-from transformers.modeling_outputs import ModelOutput, BaseModelOutput
+from transformers.modeling_outputs import BaseModelOutput, ModelOutput
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.qwen2.modeling_qwen2 import Qwen2ForCausalLM
-from transformers.utils import (add_start_docstrings,
-                                add_start_docstrings_to_model_forward,
-                                logging,
-                                replace_return_docstrings)
+from transformers.utils import (
+    add_start_docstrings,
+    add_start_docstrings_to_model_forward,
+    logging,
+    replace_return_docstrings,
+)
 
-
-from .configuration_parrot_audio import (ParrotAudioConfig,
-                                         ParrotAudioEncoderConfig)
+from .configuration_parrot_audio import ParrotAudioConfig, ParrotAudioEncoderConfig
 from .sensevoice_encoder import SenseVoiceEncoderSmall
 
 
@@ -107,7 +108,8 @@ PARROTAUDIO_START_DOCSTRING = r"""
 class ParrotAudioPreTrainedModel(PreTrainedModel):
     config_class = ParrotAudioConfig
     # TODO: check this prefix
-    base_model_prefix = "model"
+    # base_model_prefix = "model"
+    base_model_prefix = "sense_voice_small"
     supports_gradient_checkpointing = True
     _skip_keys_device_placement = "past_key_values"
     _supports_flash_attn_2 = True

@@ -14,14 +14,14 @@
 """Feature extraction class for ParrotAudio."""
 
 from functools import cached_property
+from typing import Optional
 
 import numpy as np
 import torch
 import torchaudio.compliance.kaldi as kaldi
 from torch.nn.utils.rnn import pad_sequence
-from transformers.feature_extraction_utils import BatchFeature
-from transformers.feature_extraction_utils import FeatureExtractionMixin
-from typing import Optional
+
+from transformers.feature_extraction_utils import BatchFeature, FeatureExtractionMixin
 
 
 def apply_cmvn(inputs: torch.Tensor, means: torch.Tensor, vars: torch.Tensor) -> torch.Tensor:

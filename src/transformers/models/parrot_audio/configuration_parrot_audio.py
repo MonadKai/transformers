@@ -17,6 +17,7 @@ from transformers.configuration_utils import PretrainedConfig
 from transformers.models.qwen2 import Qwen2Config
 from transformers.utils import logging
 
+
 logger = logging.get_logger(__name__)
 
 
@@ -63,8 +64,8 @@ class ParrotAudioEncoderConfig(PretrainedConfig):
             The type of self-attention layer to use.
         tp_blocks (`int`, *optional*, defaults to 20):
             The number of blocks in the Transformer encoder.
-        adaptor_ffn_dim (`int`, *optional*, defaults to 8192):
-            The number of units in the feed-forward network.
+        init_std (`float`, *optional*, defaults to 0.02):
+            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
 
     Example:
 

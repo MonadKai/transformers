@@ -19,10 +19,10 @@ Processor class for ParrotAudio.
 from typing import List, Optional, Union
 
 import numpy as np
+
 from transformers.feature_extraction_utils import BatchFeature
 from transformers.processing_utils import ProcessorMixin
-from transformers.tokenization_utils_base import (PaddingStrategy,
-                                                  PreTokenizedInput, TextInput)
+from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
 
 
 class ParrotAudioProcessor(ProcessorMixin):
@@ -138,8 +138,6 @@ class ParrotAudioProcessor(ProcessorMixin):
                 replace_str = []
                 while self.audio_token in sample:
                     audio_length = audio_lengths.pop(0)
-                    # input_length = (audio_length - 1) // 2 + 1
-                    # num_audio_tokens = (input_length - 2) // 2 + 1
                     num_audio_tokens = audio_length
 
                     expanded_audio_token = self.audio_token * num_audio_tokens

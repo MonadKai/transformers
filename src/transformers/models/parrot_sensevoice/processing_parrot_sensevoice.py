@@ -17,11 +17,12 @@ Processor class for ParrotSenseVoice.
 """
 
 from typing import List, Optional, Union
+
 import numpy as np
+
 from transformers.feature_extraction_utils import BatchFeature
 from transformers.processing_utils import ProcessorMixin
-from transformers.tokenization_utils_base import (PaddingStrategy,
-                                                  PreTokenizedInput, TextInput)
+from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
 
 
 class ParrotSenseVoiceProcessor(ProcessorMixin):
@@ -136,8 +137,6 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
                 replace_str = []
                 while self.audio_token in sample:
                     audio_length = audio_lengths.pop(0)
-                    # input_length = (audio_length - 1) // 2 + 1
-                    # num_audio_tokens = (input_length - 2) // 2 + 1
                     num_audio_tokens = audio_length
 
                     expanded_audio_token = self.audio_token * num_audio_tokens
@@ -166,7 +165,6 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
                 expanded_text.append(sample)
             text = expanded_text
 
-        # TODO: skip this tokenizer
         inputs = self.tokenizer(text, padding=padding, **kwargs)
 
         if audios is not None:
@@ -233,7 +231,7 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
                     "{{ message['content'] }}<|im_end|>\n"
                 "{% else %}"
                     "{% for content in message['content'] %}"
-                        "{% if 'audio' in content or 'audio_url' in content %}"
+                        "{% if 'audio' in content or 'audio_url' in content or content['type'] == 'audio' %}"
                             "{% set audio_count.value = audio_count.value + 1 %}"
                             "<|vision_start|>[FAKE_AUDIO]<|vision_end|>"
                         "{% elif 'text' in content %}"

@@ -16,6 +16,7 @@
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
 
+
 logger = logging.get_logger(__name__)
 
 
@@ -32,35 +33,38 @@ class ParrotSenseVoiceConfig(PretrainedConfig):
     documentation from [`PretrainedConfig`] for more information.
 
     Args:
-        num_mel_bins (`int`, *optional*, defaults to 128):
-            Number of mel features used per input features. Should correspond to the value used in the
-            `Qwen2AudioProcessor` class.
-        encoder_layers (`int`, *optional*, defaults to 32):
-            Number of encoder layers.
-        encoder_attention_heads (`int`, *optional*, defaults to 20):
-            Number of attention heads for each attention layer in the Transformer encoder.
-        encoder_ffn_dim (`int`, *optional*, defaults to 5120):
-            Dimensionality of the "intermediate" (often named feed-forward) layer in encoder.
-        encoder_layerdrop (`float`, *optional*, defaults to 0.0):
-            The LayerDrop probability for the encoder. See the [LayerDrop paper](see https://arxiv.org/abs/1909.11556)
-            for more details.
-        d_model (`int`, *optional*, defaults to 1280):
-            Dimensionality of the layers.
-        dropout (`float`, *optional*, defaults to 0.0):
-            The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.
-        attention_dropout (`float`, *optional*, defaults to 0.0):
+        attention_dropout_rate (`float`, *optional*, defaults to 0.1):
             The dropout ratio for the attention probabilities.
-        activation_function (`str`, *optional*, defaults to `"gelu"`):
-            The non-linear activation function (function or string) in the encoder and pooler. If string, `"gelu"`,
-            `"relu"`, `"silu"` and `"gelu_new"` are supported.
-        activation_dropout (`float`, *optional*, defaults to 0.0):
-            The dropout ratio for activations inside the fully connected layer.
-        scale_embedding (`bool`, *optional*, defaults to `False`):
-            Scale embeddings by diving by sqrt(d_model).
+        attention_heads (`int`, *optional*, defaults to 4):
+            Number of attention heads for each attention layer in the Transformer encoder.
+        dropout_rate (`float`, *optional*, defaults to 0.1):
+            The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.
+        input_layer (`str`, *optional*, defaults to 'pe'):
+            The type of input layer to use.
+        input_size (`int`, *optional*, defaults to 560):
+            The size of the input features.
+        kernel_size (`int`, *optional*, defaults to 11):
+            The kernel size for the convolutional layers.
+        linear_units (`int`, *optional*, defaults to 2048):
+            The number of units in the linear layers.
+        normalize_before (`bool`, *optional*, defaults to True):
+            Whether to normalize the input before the first layer.
+        num_blocks (`int`, *optional*, defaults to 50):
+            The number of blocks in the encoder.
+        output_size (`int`, *optional*, defaults to 512):
+            The size of the output features.
+        pos_enc_class (`str`, *optional*, defaults to 'SinusoidalPositionEncoder'):
+            The class of the position encoder.
+        positional_dropout_rate (`float`, *optional*, defaults to 0.1):
+            The dropout ratio for the positional encodings.
+        sanm_shfit (`int`, *optional*, defaults to 0):
+            The shift size for the SANM layers.
+        selfattention_layer_type (`str`, *optional*, defaults to 'sanm'):
+            The type of self-attention layer to use.
+        tp_blocks (`int`, *optional*, defaults to 20):
+            The number of blocks in the Transformer encoder.
         init_std (`float`, *optional*, defaults to 0.02):
             The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
-        max_source_positions (`int`, *optional*, defaults to 1500):
-            The maximum sequence length of log-mel filter-bank features that this model might ever be used with.
 
     Example:
 
@@ -81,21 +85,21 @@ class ParrotSenseVoiceConfig(PretrainedConfig):
 
     def __init__(
         self,
-        attention_dropout_rate= 0.1,
-        attention_heads= 4,
-        dropout_rate= 0.1,
-        input_layer= 'pe',
-        input_size= 560,
-        kernel_size= 11,
-        linear_units= 2048,
-        normalize_before= True,
-        num_blocks= 50,
-        output_size= 512,
-        pos_enc_class= 'SinusoidalPositionEncoder',
-        positional_dropout_rate= 0.1,
-        sanm_shfit= 0,
-        selfattention_layer_type= 'sanm',
-        tp_blocks= 20,
+        attention_dropout_rate=0.1,
+        attention_heads=4,
+        dropout_rate=0.1,
+        input_layer='pe',
+        input_size=560,
+        kernel_size=11,
+        linear_units=2048,
+        normalize_before=True,
+        num_blocks=50,
+        output_size=512,
+        pos_enc_class='SinusoidalPositionEncoder',
+        positional_dropout_rate=0.1,
+        sanm_shfit=0,
+        selfattention_layer_type='sanm',
+        tp_blocks=20,
         init_std=0.02,
         **kwargs,
     ):

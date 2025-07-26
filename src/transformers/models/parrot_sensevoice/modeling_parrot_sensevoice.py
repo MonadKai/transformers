@@ -20,15 +20,17 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.utils.checkpoint
 from torch import nn
+
 from transformers.cache_utils import Cache
 from transformers.generation import GenerationMixin
-from transformers.modeling_outputs import ModelOutput, BaseModelOutput
+from transformers.modeling_outputs import BaseModelOutput, ModelOutput
 from transformers.modeling_utils import PreTrainedModel
-from transformers.utils import (add_start_docstrings,
-                                add_start_docstrings_to_model_forward,
-                                logging,
-                                replace_return_docstrings)
-
+from transformers.utils import (
+    add_start_docstrings,
+    add_start_docstrings_to_model_forward,
+    logging,
+    replace_return_docstrings,
+)
 
 from .configuration_parrot_sensevoice import ParrotSenseVoiceConfig
 from .sensevoice_encoder import SenseVoiceEncoderSmall
@@ -57,7 +59,7 @@ PARROTSENSEVOICE_START_DOCSTRING = r"""
 )
 class ParrotSenseVoicePreTrainedModel(PreTrainedModel):
     config_class = ParrotSenseVoiceConfig
-    # TODO: check if this is correct with model file
+    # base_model_prefix = "model"
     base_model_prefix = "sense_voice_small"
     supports_gradient_checkpointing = True
     _skip_keys_device_placement = "past_key_values"
@@ -91,7 +93,7 @@ PARROTSENSEVOICEENCODER_START_DOCSTRING = r"""
     and behavior.
 
     Parameters:
-        config ([`ParrotAudioEncoderConfig`]):
+        config ([`ParrotSenseVoiceConfig`]):
             Model configuration class with all the parameters of the model. Initializing with a config file does not
             load the weights associated with the model, only the configuration. Check out the
             [`~PreTrainedModel.from_pretrained`] method to load the model weights.
@@ -137,18 +139,18 @@ class ParrotSenseVoiceEncoder(ParrotSenseVoicePreTrainedModel):
             param.requires_grad = False
         self._requires_grad = False
 
+    # TODO: refine output type to BaseModelOutput
     def forward(
         self,
-        input_features,
-        attention_mask=None,
-        audio_feature_lengths=None,
-        head_mask=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-    ):
-        
-        xs_pad, olens, *_ = self.sense_voice_small(
+        input_features: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        audio_feature_lengths: Optional[torch.Tensor] = None,
+        head_mask: Optional[torch.Tensor] = None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        xs_pad, olens, _ = self.sense_voice_small(
             input_features,
             ilens = audio_feature_lengths
         )

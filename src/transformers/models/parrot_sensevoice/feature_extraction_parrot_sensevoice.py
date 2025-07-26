@@ -20,7 +20,8 @@ import numpy as np
 import torch
 import torchaudio.compliance.kaldi as kaldi
 from torch.nn.utils.rnn import pad_sequence
-from transformers import FeatureExtractionMixin
+
+from transformers.feature_extraction_utils import BatchFeature, FeatureExtractionMixin
 
 
 def apply_cmvn(inputs: torch.Tensor, means: torch.Tensor, vars: torch.Tensor) -> torch.Tensor:
@@ -60,9 +61,9 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
         frame_shift: int = 10,
         filter_length_min: int = -1,
         filter_length_max: int = -1,
-        lfr_m: int = 1,
-        lfr_n: int = 1,
-        dither: float = 1.0,
+        lfr_m: int = 7,
+        lfr_n: int = 6,
+        dither: float = 0.0,
         snip_edges: bool = True,
         upsacle_samples: bool = True,
         **kwargs,
@@ -96,10 +97,10 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
 
     @torch.no_grad()
     def __call__(self,
-        inputs: list[torch.Tensor],
-        input_lengths: list[int],
-        **kwargs,
-    ):
+            inputs: list[torch.Tensor],
+            input_lengths: list[int],
+            **kwargs,
+    ) -> BatchFeature:
         # input_lengths = [i.shape[0] for i in inputs]
         batch_size = len(inputs)
         feats = []
@@ -115,7 +116,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
             mat = kaldi.fbank(
                 waveform,
                 num_mel_bins=self.n_mels,
-                frame_length=min(self.frame_length,waveform_length/self.fs*1000),
+                frame_length=min(self.frame_length, waveform_length / self.fs * 1000),
                 frame_shift=self.frame_shift,
                 dither=self.dither,
                 energy_floor=0.0,
@@ -131,7 +132,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
             feats.append(mat)
             feats_lens.append(feat_length)
 
-        feats_lens = torch.as_tensor(feats_lens)
+        feats_lens = torch.as_tensor(feats_lens)  # [batch_size]
         max_len = feats_lens.max().item()
         idxs = torch.arange(max_len).expand(feats_lens.size(0), max_len)  # [batch_size, max_len]
         feature_attention_masks = idxs < feats_lens.unsqueeze(1)  # [batch_size, max_len]

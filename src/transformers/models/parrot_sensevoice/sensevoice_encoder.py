@@ -277,7 +277,6 @@ def sequence_mask(lengths: torch.Tensor, maxlen: Optional[int] = None, dtype: to
     return mask.type(dtype).to(device) if device is not None else mask.type(dtype)
 
 
-# TODO: use in modeling_parrot_audio.py
 class EncoderLayerSANM(nn.Module):
     def __init__(
         self,
@@ -421,7 +420,6 @@ class EncoderLayerSANM(nn.Module):
         return x, cache
 
 
-# HINT: use in modeling_parrot_sensevoice.py
 class SenseVoiceEncoderSmall(nn.Module):
     """
     Author: Speech Lab of DAMO Academy, Alibaba Group
