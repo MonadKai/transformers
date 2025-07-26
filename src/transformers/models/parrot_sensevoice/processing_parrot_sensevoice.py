@@ -15,14 +15,15 @@
 """
 Processor class for ParrotSenseVoice.
 """
-
+import warnings
 from typing import List, Optional, Union
 
 import numpy as np
 
-from transformers.feature_extraction_utils import BatchFeature
-from transformers.processing_utils import ProcessorMixin
-from transformers.tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
+from ...feature_extraction_utils import BatchFeature
+from ...processing_utils import ProcessorMixin
+from ...tokenization_utils_base import PaddingStrategy, PreTokenizedInput, TextInput
+from ...utils.deprecation import deprecate_kwarg
 
 
 class ParrotSenseVoiceProcessor(ProcessorMixin):
@@ -71,10 +72,12 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
         self.placeholder_token = placeholder_token
         super().__init__(feature_extractor, tokenizer, chat_template=chat_template)
 
+    @deprecate_kwarg("audios", version="4.54.0", new_name="audio")
     def __call__(
         self,
         text: Union[TextInput, PreTokenizedInput, List[TextInput], List[PreTokenizedInput]] = None,
-        audios: Union[np.ndarray, List[np.ndarray]] = None,
+        audio: Union[np.ndarray, List[np.ndarray]] = None,
+        audios=None,  # kept for BC
         padding: Union[bool, str, PaddingStrategy] = False,
         sampling_rate: Optional[int] = None,
         **kwargs,
@@ -105,6 +108,14 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
             sampling_rate (`int`, defaults to 16000):
                 The sampling rate at which the audio files should be digitalized expressed in hertz (Hz).
         """
+        # Handle BC when user passes deprecated keyword argument
+        if audios is not None and audio is None:
+            audio = audios
+            warnings.warn(
+                "You may have used the keyword argument for the `audio` inputs. It is strongly recommended to pass inputs with keyword arguments "
+                "with keys `audio` and `text`. From transformers v4.55 `audio` will be the only acceptable keyword argument.",
+                FutureWarning,
+            )
 
         if text is None:
             raise ValueError("You need to specify either a `text` input to process.")
@@ -113,20 +124,20 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
         elif not isinstance(text, list) and not isinstance(text[0], str):
             raise ValueError("Invalid input text. Please provide a string, or a list of strings")
 
-        # ensure we have as much audios as audio tokens
-        num_audio_tokens = sum(sample.count(self.audio_token) for sample in text)
-        num_audios = 1 if isinstance(audios, np.ndarray) else len(audios)
-        if num_audio_tokens != num_audios:
-            raise ValueError(
+        if audio is not None:
+            # ensure we have as much audios as audio tokens
+            num_audio_tokens = sum(sample.count(self.audio_token) for sample in text)
+            num_audios = 1 if isinstance(audio, np.ndarray) else len(audio)
+            if num_audio_tokens != num_audios:
+                raise ValueError(
                 f"Found {num_audio_tokens} {self.audio_token} token{'s' if num_audio_tokens > 1 else ''} in provided text but received {num_audios} audio{'s' if num_audios > 1 else ''}"
             )
 
-        if audios is not None:
-            audio_lens = [i.shape[0] for i in audios]
-            audio_inputs = self.feature_extractor(audios, audio_lens, **kwargs)
-            audio_inputs["feature_attention_mask"] = audio_inputs.pop(
-                "attention_mask"
-            )  # rename attention_mask to prevent conflicts later on
+            audio_lens = [i.shape[0] for i in audio]
+            audio_inputs = self.feature_extractor(audio, audio_lens, **kwargs)
+
+            # rename attention_mask to prevent conflicts later on
+            audio_inputs["feature_attention_mask"] = audio_inputs.pop("attention_mask")
 
             expanded_text = []
             audio_lengths = audio_inputs["feature_attention_mask"].sum(-1).tolist()
@@ -165,7 +176,7 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
 
         inputs = self.tokenizer(text, padding=padding, **kwargs)
 
-        if audios is not None:
+        if audio is not None:
             inputs.update(audio_inputs)
 
         return BatchFeature(data={**inputs})
