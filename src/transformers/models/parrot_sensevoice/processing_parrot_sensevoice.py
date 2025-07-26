@@ -61,7 +61,7 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
         audio_token="[FAKE_AUDIO]",
         audio_bos_token="<|vision_start|>",
         audio_eos_token="<|vision_end|>",
-        placeholder_token='<placeholder>'
+        placeholder_token="<placeholder>",
     ):
         if chat_template is None:
             chat_template = self.default_chat_template
@@ -123,9 +123,7 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
 
         if audios is not None:
             audio_lens = [i.shape[0] for i in audios]
-            audio_inputs = self.feature_extractor(
-                audios, audio_lens, **kwargs
-            )
+            audio_inputs = self.feature_extractor(audios, audio_lens, **kwargs)
             audio_inputs["feature_attention_mask"] = audio_inputs.pop(
                 "attention_mask"
             )  # rename attention_mask to prevent conflicts later on

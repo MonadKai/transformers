@@ -82,7 +82,6 @@ class ParrotSenseVoicePreTrainedModel(PreTrainedModel):
                 module.weight.data[module.padding_idx].zero_()
 
 
-
 PARROTSENSEVOICEENCODER_START_DOCSTRING = r"""
     This model inherits from [`PreTrainedModel`]. Check the superclass documentation for the generic methods the
     library implements for all its model (such as downloading or saving, resizing the input embeddings, pruning heads
@@ -131,7 +130,7 @@ class ParrotSenseVoiceEncoder(ParrotSenseVoicePreTrainedModel):
             attention_dropout_rate=config.attention_dropout_rate,
             normalize_before=config.normalize_before,
             kernel_size=config.kernel_size,
-            sanm_shfit=config.sanm_shfit
+            sanm_shfit=config.sanm_shfit,
         )
 
     def _freeze_parameters(self):
@@ -150,14 +149,13 @@ class ParrotSenseVoiceEncoder(ParrotSenseVoicePreTrainedModel):
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        xs_pad, olens, _ = self.sense_voice_small(
-            input_features,
-            ilens = audio_feature_lengths
-        )
+        xs_pad, olens, _ = self.sense_voice_small(input_features, ilens=audio_feature_lengths)
         return xs_pad, olens
 
     # Ignore copy
-    def _get_feat_extract_output_lengths(self, input_lengths: torch.LongTensor) -> tuple[torch.LongTensor, torch.LongTensor]:
+    def _get_feat_extract_output_lengths(
+        self, input_lengths: torch.LongTensor
+    ) -> tuple[torch.LongTensor, torch.LongTensor]:
         """
         Computes the output length of the parrot sensevoice encoder
         """

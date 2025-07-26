@@ -50,7 +50,8 @@ def apply_lfr(inputs: torch.Tensor, lfr_m: int, lfr_n: int) -> torch.Tensor:
 
 
 class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
-    def __init__(self, 
+    def __init__(
+        self,
         means: list[float],
         vars: list[float],
         cmvn_file: Optional[str] = None,
@@ -84,7 +85,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
             dither=dither,
             snip_edges=snip_edges,
             upsacle_samples=upsacle_samples,
-            **kwargs
+            **kwargs,
         )
 
     @cached_property
@@ -96,10 +97,11 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
         return torch.as_tensor(self.vars, dtype=torch.float32)
 
     @torch.no_grad()
-    def __call__(self,
-            inputs: list[torch.Tensor],
-            input_lengths: list[int],
-            **kwargs,
+    def __call__(
+        self,
+        inputs: list[torch.Tensor],
+        input_lengths: list[int],
+        **kwargs,
     ) -> BatchFeature:
         # input_lengths = [i.shape[0] for i in inputs]
         batch_size = len(inputs)
@@ -139,8 +141,10 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
         if batch_size == 1:
             feats_pad = feats[0][None, :, :]  # [1, feature_length, n_mels * 7]
         else:
-            feats_pad = pad_sequence(feats, batch_first=True, padding_value=0.0)  # [batch_size, feature_length, n_mels * 7]
-        return {'input_features': feats_pad, 'attention_mask': feature_attention_masks}
+            feats_pad = pad_sequence(
+                feats, batch_first=True, padding_value=0.0
+            )  # [batch_size, feature_length, n_mels * 7]
+        return {"input_features": feats_pad, "attention_mask": feature_attention_masks}
 
 
 __all__ = ["ParrotSenseVoiceFeatureExtractor"]

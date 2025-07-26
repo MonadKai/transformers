@@ -182,6 +182,7 @@ PARROT2AUDIO_INPUTS_DOCSTRING = r"""
             Whether or not to return a [`~utils.ModelOutput`] instead of a plain tuple.
 """
 
+
 @add_start_docstrings(
     """The PARROT2AUDIO model which consists of a audio backbone and a language model.""",
     PARROT2AUDIO_INPUTS_DOCSTRING,
@@ -553,12 +554,18 @@ class Parrot2AudioForConditionalGeneration(Parrot2AudioPreTrainedModel, Generati
                     special_audio_mask = (input_ids == self.config.audio_token_index).to(inputs_embeds.device)
                     special_audio_mask = special_audio_mask.unsqueeze(-1).expand_as(inputs_embeds)
                     print(f"Before conversion:")
-                    print(f"  inputs_embeds: device={inputs_embeds.device}, dtype={inputs_embeds.dtype}, shape={inputs_embeds.shape}")
-                    print(f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}")
+                    print(
+                        f"  inputs_embeds: device={inputs_embeds.device}, dtype={inputs_embeds.dtype}, shape={inputs_embeds.shape}"
+                    )
+                    print(
+                        f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}"
+                    )
                     audio_features = audio_features.to(inputs_embeds.device, inputs_embeds.dtype)
                     inputs_embeds = inputs_embeds.masked_scatter(special_audio_mask, audio_features)
                     print(f"After conversion:")
-                    print(f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}")
+                    print(
+                        f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}"
+                    )
 
         outputs = self.language_model(
             attention_mask=attention_mask,
@@ -676,4 +683,10 @@ class Parrot2AudioForConditionalGeneration(Parrot2AudioPreTrainedModel, Generati
         return self.language_model._reorder_cache(*args, **kwargs)
 
 
-__all__ = ["Parrot2AudioForConditionalGeneration", "ParrotQwen3ForCausalLM", "Parrot2AudioMultiModalProjector", "Parrot2AudioEncoder", "Parrot2AudioPreTrainedModel"]
+__all__ = [
+    "Parrot2AudioForConditionalGeneration",
+    "ParrotQwen3ForCausalLM",
+    "Parrot2AudioMultiModalProjector",
+    "Parrot2AudioEncoder",
+    "Parrot2AudioPreTrainedModel",
+]
