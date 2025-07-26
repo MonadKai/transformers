@@ -13,7 +13,7 @@ class SinusoidalPositionEncoder(torch.nn.Module):
 
     def encode(
         self, positions: torch.Tensor, depth: int, dtype: torch.dtype = torch.float32
-    ):
+    ) -> torch.Tensor:
         batch_size = positions.size(0)
         positions = positions.type(dtype)
         device = positions.device

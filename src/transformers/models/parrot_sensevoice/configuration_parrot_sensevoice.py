@@ -75,7 +75,7 @@ class ParrotSenseVoiceConfig(PretrainedConfig):
     >>> configuration = ParrotSenseVoiceConfig()
 
     >>> # Initializing a ParrotSenseVoice (with random weights)
-    >>> model = ParrotSenseVoice(configuration)
+    >>> model = ParrotSenseVoiceEncoder(configuration)
 
     >>> # Accessing the model configuration
     >>> configuration = model.config
