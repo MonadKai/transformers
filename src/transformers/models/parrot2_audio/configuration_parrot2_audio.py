@@ -72,7 +72,7 @@ class Parrot2AudioConfig(PretrainedConfig):
         self,
         audio_config=None,
         text_config=None,
-        audio_token_index=151665,
+        audio_token_index=151669,
         adaptor_ffn_dim=8192,
         **kwargs,
     ):
