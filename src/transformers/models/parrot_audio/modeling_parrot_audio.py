@@ -37,7 +37,7 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 
-from .configuration_parrot_audio import ParrotAudioConfig, ParrotAudioEncoderConfig
+from .configuration_parrot_audio import ParrotAudioConfig
 
 
 logger = logging.get_logger(__name__)
@@ -87,10 +87,6 @@ class ParrotAudioCausalLMOutputWithPast(ModelOutput):
     attention_mask: Optional[torch.FloatTensor] = None
 
 
-ParrotAudioPreTrainedModel = ParrotSenseVoicePreTrainedModel
-ParrotAudioEncoder = ParrotSenseVoiceEncoder
-
-
 class LinearAdaptor(nn.Module):
     def __init__(self, encoder_dim: int, ffn_dim: int, llm_dim: int, **kwargs):
         super().__init__()
@@ -119,10 +115,6 @@ class ParrotAudioMultiModalProjector(nn.Module):
     def forward(self, audio_features: torch.Tensor) -> torch.Tensor:
         hidden_states, _ = self.adaptor(audio_features)
         return hidden_states
-
-
-class ParrotQwen2ForCausalLM(Qwen2ForCausalLM):
-    _tied_weights_keys = None
 
 
 PARROTAUDIO_INPUTS_DOCSTRING = r"""
@@ -202,13 +194,13 @@ PARROTAUDIO_INPUTS_DOCSTRING = r"""
     """The PARROTAUDIO model which consists of a audio backbone and a language model.""",
     PARROTAUDIO_INPUTS_DOCSTRING,
 )
-class ParrotAudioForConditionalGeneration(ParrotAudioPreTrainedModel, GenerationMixin):
+class ParrotAudioForConditionalGeneration(ParrotSenseVoicePreTrainedModel, GenerationMixin):
     def __init__(self, config: ParrotAudioConfig):
         super().__init__(config)
-        self.audio_tower = ParrotAudioEncoder._from_config(config.audio_config)
+        self.audio_tower = ParrotSenseVoiceEncoder._from_config(config.audio_config)
         self.multi_modal_projector = ParrotAudioMultiModalProjector(config)
         self.vocab_size = config.text_config.vocab_size
-        self.language_model = ParrotQwen2ForCausalLM._from_config(config.text_config)
+        self.language_model = Qwen2ForCausalLM._from_config(config.text_config)
 
         self.pad_token_id = self.config.pad_token_id if self.config.pad_token_id is not None else -1
         self._padding_side = "left"  # set it to left by default, user can use setter to change padding_sides
@@ -700,8 +692,5 @@ class ParrotAudioForConditionalGeneration(ParrotAudioPreTrainedModel, Generation
 
 __all__ = [
     "ParrotAudioForConditionalGeneration",
-    "ParrotQwen2ForCausalLM",
     "ParrotAudioMultiModalProjector",
-    "ParrotAudioEncoder",
-    "ParrotAudioPreTrainedModel",
 ]
