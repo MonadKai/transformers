@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from .configuration_parrot2_audio_moe import *
     from .modeling_parrot2_audio_moe import *
     from .processing_parrot2_audio_moe import *
-    from .feature_extraction_parrot2_audio_moe import *
 else:
     import sys
 

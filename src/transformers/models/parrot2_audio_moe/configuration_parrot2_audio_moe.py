@@ -22,9 +22,6 @@ from transformers.utils import logging
 logger = logging.get_logger(__name__)
 
 
-Parrot2AudioMoeEncoderConfig = ParrotSenseVoiceConfig
-
-
 class Parrot2AudioMoeConfig(PretrainedConfig):
     r"""
     This is the configuration class to store the configuration of a [`Parrot2AudioMoeForConditionalGeneration`]. It is used to instantiate an
@@ -37,7 +34,7 @@ class Parrot2AudioMoeConfig(PretrainedConfig):
     documentation from [`PretrainedConfig`] for more information.
 
     Args:
-        audio_config (`Union[AutoConfig, dict]`,  *optional*, defaults to `Parrot2AudioMoeEncoderConfig`):
+        audio_config (`Union[AutoConfig, dict]`,  *optional*, defaults to `ParrotSenseVoiceConfig`):
             The config object or dictionary of the audio backbone.
         text_config (`Union[AutoConfig, dict]`, *optional*, defaults to `Qwen3Config`):
             The config object or dictionary of the text backbone.
@@ -47,7 +44,7 @@ class Parrot2AudioMoeConfig(PretrainedConfig):
     Example:
 
     ```python
-    >>> from transformers import Parrot2AudioMoeForConditionalGeneration, Parrot2AudioMoeConfig, Parrot2AudioMoeEncoderConfig, Qwen3MoeConfig
+    >>> from transformers import Parrot2AudioMoeForConditionalGeneration, Parrot2AudioMoeConfig, ParrotSenseVoiceConfig, Qwen3MoeConfig
 
     >>> # Initializing a Parrot2AudioMoeEncoder config
     >>> audio_config = Parrot2AudioMoeEncoderConfig()
@@ -66,7 +63,7 @@ class Parrot2AudioMoeConfig(PretrainedConfig):
     ```"""
 
     model_type = "parrot2_audio_moe"
-    sub_configs = {"text_config": Qwen3MoeConfig, "audio_config": Parrot2AudioMoeEncoderConfig}
+    sub_configs = {"text_config": Qwen3MoeConfig, "audio_config": ParrotSenseVoiceConfig}
 
     def __init__(
         self,
@@ -80,9 +77,9 @@ class Parrot2AudioMoeConfig(PretrainedConfig):
         self.adaptor_ffn_dim = adaptor_ffn_dim
 
         if isinstance(audio_config, dict):
-            audio_config = Parrot2AudioMoeEncoderConfig(**audio_config)
+            audio_config = ParrotSenseVoiceConfig(**audio_config)
         elif audio_config is None:
-            audio_config = Parrot2AudioMoeEncoderConfig(
+            audio_config = ParrotSenseVoiceConfig(
                 attention_dropout_rate=0.1,
                 attention_heads=4,
                 dropout_rate=0.1,
@@ -146,4 +143,4 @@ class Parrot2AudioMoeConfig(PretrainedConfig):
         super().__init__(**kwargs)
 
 
-__all__ = ["Parrot2AudioMoeConfig", "Parrot2AudioMoeEncoderConfig"]
+__all__ = ["Parrot2AudioMoeConfig"]
