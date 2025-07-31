@@ -20,8 +20,6 @@ from transformers.utils.import_utils import define_import_structure
 if TYPE_CHECKING:
     from .configuration_parrot2_audio import *
     from .modeling_parrot2_audio import *
-    from .processing_parrot2_audio import *
-    from .feature_extraction_parrot2_audio import *
 else:
     import sys
 
