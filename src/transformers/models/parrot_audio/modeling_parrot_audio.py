@@ -37,7 +37,7 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 
-from .configuration_parrot_audio import ParrotAudioConfig, ParrotAudioEncoderConfig
+from .configuration_parrot_audio import ParrotAudioConfig
 
 
 logger = logging.get_logger(__name__)
@@ -85,10 +85,6 @@ class ParrotAudioCausalLMOutputWithPast(ModelOutput):
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
     attentions: Optional[Tuple[torch.FloatTensor]] = None
     attention_mask: Optional[torch.FloatTensor] = None
-
-
-ParrotAudioPreTrainedModel = ParrotSenseVoicePreTrainedModel
-ParrotAudioEncoder = ParrotSenseVoiceEncoder
 
 
 class LinearAdaptor(nn.Module):
@@ -202,10 +198,10 @@ PARROTAUDIO_INPUTS_DOCSTRING = r"""
     """The PARROTAUDIO model which consists of a audio backbone and a language model.""",
     PARROTAUDIO_INPUTS_DOCSTRING,
 )
-class ParrotAudioForConditionalGeneration(ParrotAudioPreTrainedModel, GenerationMixin):
+class ParrotAudioForConditionalGeneration(ParrotSenseVoicePreTrainedModel, GenerationMixin):
     def __init__(self, config: ParrotAudioConfig):
         super().__init__(config)
-        self.audio_tower = ParrotAudioEncoder._from_config(config.audio_config)
+        self.audio_tower = ParrotSenseVoiceEncoder._from_config(config.audio_config)
         self.multi_modal_projector = ParrotAudioMultiModalProjector(config)
         self.vocab_size = config.text_config.vocab_size
         self.language_model = ParrotQwen2ForCausalLM._from_config(config.text_config)
@@ -700,8 +696,5 @@ class ParrotAudioForConditionalGeneration(ParrotAudioPreTrainedModel, Generation
 
 __all__ = [
     "ParrotAudioForConditionalGeneration",
-    "ParrotQwen2ForCausalLM",
     "ParrotAudioMultiModalProjector",
-    "ParrotAudioEncoder",
-    "ParrotAudioPreTrainedModel",
 ]
