@@ -80,6 +80,7 @@ else:
             ("dinat", ("ViTImageProcessor", "ViTImageProcessorFast")),
             ("dinov2", ("BitImageProcessor",)),
             ("donut-swin", ("DonutImageProcessor",)),
+            ("dots_ocr", ("DotsVLProcessor",)),
             ("dpt", ("DPTImageProcessor",)),
             ("efficientformer", ("EfficientFormerImageProcessor",)),
             ("efficientnet", ("EfficientNetImageProcessor",)),
