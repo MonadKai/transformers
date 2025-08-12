@@ -163,6 +163,8 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
                 expanded_text.append(sample)
             text = expanded_text
 
+        # HINT: avoid passing audio parameter to tokenizer
+        kwargs.pop("audio")
         inputs = self.tokenizer(text, padding=padding, **kwargs)
 
         if audios is not None:
