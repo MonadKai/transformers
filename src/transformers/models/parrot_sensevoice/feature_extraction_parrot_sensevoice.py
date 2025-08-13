@@ -66,6 +66,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
         dither: float = 0.0,
         snip_edges: bool = True,
         upsacle_samples: bool = True,
+        max_feature_length: Optional[int] = 512,
         **kwargs,
     ):
         super().__init__(
@@ -84,6 +85,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
             dither=dither,
             snip_edges=snip_edges,
             upsacle_samples=upsacle_samples,
+            max_feature_length=max_feature_length,
             **kwargs,
         )
 
@@ -129,21 +131,44 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
 
             if self.lfr_m != 1 or self.lfr_n != 1:
                 mat = apply_lfr(mat, self.lfr_m, self.lfr_n)
-            mat = apply_cmvn(mat, self._means, self._vars)  # [feature_length, n_mels * 7]
+            mat = apply_cmvn(mat, self._means, self._vars)  # [ceil(T / lfr_n), n_mels * lfr_m]
             feat_length = mat.size(0)
             feats.append(mat)
             feats_lens.append(feat_length)
 
         feats_lens = torch.as_tensor(feats_lens)  # [batch_size]
-        max_len = feats_lens.max().item()
+
+        if self.max_feature_length is not None:
+            max_len = self.max_feature_length
+        else:
+            max_len = feats_lens.max().item()
+
         idxs = torch.arange(max_len).expand(feats_lens.size(0), max_len)  # [batch_size, max_len]
         feature_attention_masks = idxs < feats_lens.unsqueeze(1)  # [batch_size, max_len]
+
         if batch_size == 1:
-            feats_pad = feats[0][None, :, :]  # [1, feature_length, n_mels * 7]
+            if self.max_feature_length is not None:
+                current_len = feats[0].size(0)
+                if current_len < max_len:
+                    padding_size = max_len - current_len
+                    feats_pad = torch.nn.functional.pad(
+                        feats[0], (0, 0, 0, padding_size), value=0.0
+                    ).unsqueeze(0)  # [1, max_feature_length, n_mels * lfr_m]
+                else:
+                    feats_pad = feats[0][:max_len].unsqueeze(0)  # [1, max_feature_length, n_mels * lfr_m]
+            else:
+                feats_pad = feats[0][None, :, :]  # [1, feature_length, n_mels * lfr_m]
         else:
-            feats_pad = pad_sequence(
-                feats, batch_first=True, padding_value=0.0
-            )  # [batch_size, feature_length, n_mels * 7]
+            if self.max_feature_length is not None:
+                feats_pad = torch.zeros(batch_size, max_len, feats[0].size(-1), dtype=feats[0].dtype, device=feats[0].device)
+                for i, feat in enumerate(feats):
+                    current_len = min(feat.size(0), max_len)
+                    feats_pad[i, :current_len] = feat[:current_len]
+            else:
+                feats_pad = pad_sequence(
+                    feats, batch_first=True, padding_value=0.0
+                )  # [batch_size, feature_length, n_mels * lfr_m]
+
         return {"input_features": feats_pad, "attention_mask": feature_attention_masks}
 
 
