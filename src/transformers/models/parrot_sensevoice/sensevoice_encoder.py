@@ -102,6 +102,7 @@ class MultiHeadedAttentionSANM(nn.Module):
     def forward_fsmn(
         self, inputs: torch.Tensor, mask: torch.Tensor, mask_shfit_chunk: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
+        original_dtype = inputs.dtype
         b, t, d = inputs.size()
         if mask is not None:
             mask = torch.reshape(mask, (b, -1, 1))
@@ -111,13 +112,18 @@ class MultiHeadedAttentionSANM(nn.Module):
 
         x = inputs.transpose(1, 2)
         x = self.pad_fn(x)
-        x = self.fsmn_block(x)
+        # x = self.fsmn_block(x)
+        x = x.to(torch.float32)
+        weight = self.fsmn_block.weight.to(torch.float32)
+        bias = self.fsmn_block.bias.to(torch.float32) if self.fsmn_block.bias is not None else None
+        x = F.conv1d(x, weight, bias, stride=self.fsmn_block.stride, padding=self.fsmn_block.padding, groups=self.fsmn_block.groups)
+
         x = x.transpose(1, 2)
         x += inputs
         x = self.dropout(x)
         if mask is not None:
             x = x * mask
-        return x
+        return x.to(original_dtype)
 
     def forward_qkv(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Transform query, key and value.
