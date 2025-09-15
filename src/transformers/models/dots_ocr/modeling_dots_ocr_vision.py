@@ -199,12 +199,19 @@ class VisionSdpaAttention(nn.Module):
                 cu_seqlens[i - 1] : cu_seqlens[i],
             ] = True
 
-        q = q.transpose(0, 1)
-        k = k.transpose(0, 1)
-        v = v.transpose(0, 1)
+        # Convert q, k, v to 4D to enable : (1, num_heads, seq_length, head_dim)
+        q = q.transpose(0, 1).unsqueeze(0)   # (1, num_heads, seq_length, head_dim)
+        k = k.transpose(0, 1).unsqueeze(0)
+        v = v.transpose(0, 1).unsqueeze(0)
 
-        attn_output = F.scaled_dot_product_attention(q, k, v, attention_mask, dropout_p=0.0)
-        attn_output = attn_output.transpose(0, 1)
+        if attention_mask.stride(-1) != 1:
+            attention_mask = torch.empty_like(attention_mask, memory_format=torch.contiguous_format).copy_(attention_mask)
+ 
+        # use memory efficient backend
+        from torch.nn.attention import SDPBackend, sdpa_kernel
+        with sdpa_kernel(SDPBackend.EFFICIENT_ATTENTION):
+            attn_output = F.scaled_dot_product_attention(q, k, v, attention_mask, dropout_p=0.0)
+        attn_output = attn_output.squeeze(0).transpose(0, 1)  # (seq_length, num_heads, head_dim)
         attn_output = attn_output.reshape(seq_length, -1)
 
         attn_output = self.proj(attn_output)
