@@ -31,7 +31,7 @@ from torch.nn.utils import remove_weight_norm, spectral_norm, weight_norm
 from ...activations import ACT2FN
 from ...modeling_outputs import ModelOutput
 from ...modeling_utils import PreTrainedModel
-from ...utils import auto_docstring, logging
+from ...utils import add_start_docstrings, add_start_docstrings_to_model_forward, logging
 from .attentions_vits2_4 import FFN, Decoder, Encoder, MultiHeadAttention
 from .commons_vits2_4 import fused_add_tanh_sigmoid_multiply, generate_path, get_padding, init_weights, sequence_mask
 from .configuration_vits2_4 import Vits2_4Config
@@ -58,11 +58,6 @@ logger = logging.get_logger(__name__)
 
 
 @dataclass
-@auto_docstring(
-    custom_intro="""
-    Describes the outputs for the VITS2_4 model, with potential hidden states and attentions.
-    """
-)
 class Vits2_4ModelOutput(ModelOutput):
     r"""
     waveform (`torch.FloatTensor` of shape `(batch_size, sequence_length)`):
@@ -863,10 +858,55 @@ class ReferenceEncoder(nn.Module):
         return L
 
 
-@auto_docstring(
-    custom_intro="""
-    The complete VITS2_4 model, for text-to-speech synthesis.
-    """
+VITS2_4_START_DOCSTRING = r"""
+    This model inherits from [`PreTrainedModel`]. Check the superclass documentation for the generic methods the
+    library implements for all its model (such as downloading or saving, resizing the input embeddings, pruning heads
+    etc.)
+
+    This model is also a PyTorch [torch.nn.Module](https://pytorch.org/docs/stable/nn.html#torch.nn.Module) subclass.
+    Use it as a regular PyTorch Module and refer to the PyTorch documentation for all matter related to general usage
+    and behavior.
+
+    Parameters:
+        config ([`VitsConfig`]):
+            Model configuration class with all the parameters of the model. Initializing with a config file does not
+            load the weights associated with the model, only the configuration. Check out the
+            [`~PreTrainedModel.from_pretrained`] method to load the model weights.
+"""
+
+VITS2_4_INPUTS_DOCSTRING = r"""
+    Args:
+        input_ids (`torch.LongTensor` of shape `(batch_size, sequence_length)`):
+            Indices of input sequence tokens in the vocabulary. Padding will be ignored by default should you provide
+            it.
+
+            Indices can be obtained using [`AutoTokenizer`]. See [`PreTrainedTokenizer.encode`] and
+            [`PreTrainedTokenizer.__call__`] for details.
+
+            [What are input IDs?](../glossary#input-ids)
+        attention_mask (`torch.Tensor` of shape `(batch_size, sequence_length)`, *optional*):
+            Mask to avoid performing convolution and attention on padding token indices. Mask values selected in `[0,
+            1]`:
+
+            - 1 for tokens that are **not masked**,
+            - 0 for tokens that are **masked**.
+
+            [What are attention masks?](../glossary#attention-mask)
+        speaker_id (`int`, *optional*):
+            Which speaker embedding to use. Only used for multispeaker models.
+        output_attentions (`bool`, *optional*):
+            Whether or not to return the attentions tensors of all attention layers. See `attentions` under returned
+            tensors for more detail.
+        output_hidden_states (`bool`, *optional*):
+            Whether or not to return the hidden states of all layers. See `hidden_states` under returned tensors for
+            more detail.
+        return_dict (`bool`, *optional*):
+            Whether or not to return a [`~utils.ModelOutput`] instead of a plain tuple.
+"""
+
+@add_start_docstrings(
+    "The complete VITS2_4 model, for text-to-speech synthesis.",
+    VITS2_4_START_DOCSTRING,
 )
 class Vits2_4Model(nn.Module):
     def __init__(self, config: Vits2_4Config):
@@ -974,7 +1014,7 @@ class Vits2_4Model(nn.Module):
             gin_channels=self.gin_channels,
         )
 
-    @auto_docstring
+    @add_start_docstrings_to_model_forward(VITS2_4_INPUTS_DOCSTRING)
     def forward_streaming(
         self,
         x,
