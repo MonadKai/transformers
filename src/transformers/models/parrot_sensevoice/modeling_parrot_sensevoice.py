@@ -46,7 +46,7 @@ PARROTSENSEVOICE_START_DOCSTRING = r"""
     and behavior.
 
     Parameters:
-        config ([`ParrotAudioConfig`]):
+        config ([`ParrotSenseVoiceConfig`]):
             Model configuration class with all the parameters of the model. Initializing with a config file does not
             load the weights associated with the model, only the configuration. Check out the
             [`~PreTrainedModel.from_pretrained`] method to load the model weights.
@@ -59,9 +59,9 @@ PARROTSENSEVOICE_START_DOCSTRING = r"""
 )
 class ParrotSenseVoicePreTrainedModel(PreTrainedModel):
     config_class = ParrotSenseVoiceConfig
-    # base_model_prefix = "model"
     base_model_prefix = "sense_voice_small"
     supports_gradient_checkpointing = True
+    _no_split_modules = ["EncoderLayerSANM"]
     _skip_keys_device_placement = "past_key_values"
     _supports_flash_attn_2 = True
     _supports_sdpa = True
