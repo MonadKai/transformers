@@ -164,6 +164,11 @@ class ParrotSenseVoiceProcessor(ProcessorMixin):
             text = expanded_text
 
         # HINT: avoid passing audio parameter to tokenizer
+        # HINT: different image should use different logics
+        # e.g. for image `docker pull image.sourcefind.cn:5000/dcu/admin/base/vllm:0.9.2-ubuntu22.04-dtk25.04.1-rc5-rocblas101839-0811-das1.6-py3.10-20250812-beta`
+        # we need to pop the audio parameter
+        # but for image `docker pull image.sourcefind.cn:5000/dcu/admin/base/vllm:0.8.5-ubuntu22.04-dtk25.04.1-rc5-das1.6-py3.10-20250724`
+        # we need to keep the audio parameter
         kwargs.pop("audio")
         inputs = self.tokenizer(text, padding=padding, **kwargs)
 
