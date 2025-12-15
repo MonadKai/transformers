@@ -243,7 +243,7 @@ class FunasrNanoProcessor(ProcessorMixin):
                     "{% for content in message['content'] %}"
                         "{% if 'audio' in content or 'audio_url' in content or content['type'] == 'audio' %}"
                             "{% set audio_count.value = audio_count.value + 1 %}"
-                            "<|vision_start|>[FAKE_AUDIO]<|vision_end|>"
+                            "<|startofspeech|>!<|endofspeech|>"
                         "{% elif 'text' in content %}"
                             "{{ content['text'] }}"
                         "{% endif %}"
@@ -258,4 +258,4 @@ class FunasrNanoProcessor(ProcessorMixin):
         # fmt: on
 
 
-__all__ = ["ParrotSenseVoiceProcessor"]
+__all__ = ["FunasrNanoProcessor"]
