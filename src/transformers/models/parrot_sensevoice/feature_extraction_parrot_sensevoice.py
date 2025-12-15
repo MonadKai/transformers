@@ -139,6 +139,7 @@ class ParrotSenseVoiceFeatureExtractor(FeatureExtractionMixin):
         feats_lens = torch.as_tensor(feats_lens)  # [batch_size]
 
         if self.max_feature_length is not None:
+            feats_lens = torch.clamp(feats_lens, max=self.max_feature_length)
             max_len = self.max_feature_length
         else:
             max_len = feats_lens.max().item()
