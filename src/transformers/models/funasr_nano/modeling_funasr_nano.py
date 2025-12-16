@@ -114,7 +114,7 @@ class FunasrNanoSenseVoicePreTrainedModel(PreTrainedModel):
     _supports_attention_backend = False
 
     def _init_weights(self, module):
-        # important: this ported version of ParrotSenseVoice isn't meant for training from scratch - only
+        # important: this ported version of FunASR-Nano isn't meant for training from scratch - only
         # inference and fine-tuning - so the proper init weights code has been removed
         std = self.config.init_std if hasattr(self.config, "init_std") else self.config.init_std
 
@@ -146,7 +146,7 @@ SENSEVOICEENCODER_START_DOCSTRING = r"""
 
 
 @add_start_docstrings(
-    """The audio model from ParrotSenseVoice without any head or projection on top.""",
+    """The audio model from FunASR-Nano without any head or projection on top.""",
     SENSEVOICEENCODER_START_DOCSTRING,
 )
 class FunasrNanoSenseVoiceEncoder(FunasrNanoSenseVoicePreTrainedModel):
@@ -598,7 +598,6 @@ class FunasrNanoForConditionalGeneration(FunasrNanoPreTrainedModel, GenerationMi
                 # TODO: currently audio_outputs is a tuple, refine it to BaseModelOutput
                 selected_audio_feature, audio_output_lengths = self.audio_tower(input_features, audio_feature_lengths=feature_attention_mask.sum(-1))
                 audio_features = self.multi_modal_projector(selected_audio_feature, audio_output_lengths)
-
                 # if we have consecutive audio tokens, then it means we expanded input_ids in processing
                 audio_tokens = input_ids == self.config.audio_token_index
                 legacy_processing = (audio_tokens[:, :-1] & audio_tokens[:, 1:]).sum() == 0
@@ -625,19 +624,8 @@ class FunasrNanoForConditionalGeneration(FunasrNanoPreTrainedModel, GenerationMi
                         )
                     special_audio_mask = (input_ids == self.config.audio_token_index).to(inputs_embeds.device)
                     special_audio_mask = special_audio_mask.unsqueeze(-1).expand_as(inputs_embeds)
-                    print(f"Before conversion:")
-                    print(
-                        f"  inputs_embeds: device={inputs_embeds.device}, dtype={inputs_embeds.dtype}, shape={inputs_embeds.shape}"
-                    )
-                    print(
-                        f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}"
-                    )
                     audio_features = audio_features.to(inputs_embeds.device, inputs_embeds.dtype)
                     inputs_embeds = inputs_embeds.masked_scatter(special_audio_mask, audio_features)
-                    print(f"After conversion:")
-                    print(
-                        f"  audio_features: device={audio_features.device}, dtype={audio_features.dtype}, shape={audio_features.shape}"
-                    )
 
         outputs = self.language_model(
             attention_mask=attention_mask,

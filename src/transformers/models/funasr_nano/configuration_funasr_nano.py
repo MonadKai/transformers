@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Parrot2Audio model configuration"""
+"""FunASR-Nano model configuration"""
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.models.qwen3 import Qwen3Config
@@ -23,12 +23,12 @@ logger = logging.get_logger(__name__)
 
 class FunasrNanoSenseVoiceConfig(PretrainedConfig):
     r"""
-    This is the configuration class to store the configuration of a [`ParrotSenseVoice`]. It is used to instantiate a
-    ParrotSenseVoice audio encoder according to the specified arguments, defining the model architecture. Instantiating a
-    configuration with the defaults will yield a similar configuration to that of the audio encoder of the ParrotSenseVoice
+    This is the configuration class to store the configuration of a [`FunasrNanoSenseVoice`]. It is used to instantiate a
+    FunASR-Nano audio encoder according to the specified arguments, defining the model architecture. Instantiating a
+    configuration with the defaults will yield a similar configuration to that of the audio encoder of the FunASR-Nano
     architecture.
 
-    e.g. [bairong-inc/ParrotSenseVoice](https://huggingface.co/bairong-inc/ParrotSenseVoice)
+    e.g. [FunAudioLLM/Fun-ASR-Nano-2512](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512)
 
     Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
     documentation from [`PretrainedConfig`] for more information.
@@ -134,10 +134,10 @@ class FunasrNanoConfig(PretrainedConfig):
     Example:
 
     ```python
-    >>> from transformers import FunasrNanoForConditionalGeneration, FunasrNanoConfig, ParrotSenseVoiceConfig, Qwen3Config
+    >>> from transformers import FunasrNanoForConditionalGeneration, FunasrNanoConfig, FunasrNanoSenseVoiceConfig, Qwen3Config
 
-    >>> # Initializing a parrot sensevoice config
-    >>> audio_config = ParrotSenseVoiceConfig()
+    >>> # Initializing a FunASR-NanoSenseVoice config
+    >>> audio_config = FunasrNanoSenseVoiceConfig()
 
     >>> # Initializing a Qwen3 config
     >>> text_config = Qwen3Config()

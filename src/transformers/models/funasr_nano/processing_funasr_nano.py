@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Processor class for ParrotSenseVoice.
+Processor class for FunASR-Nano.
 """
+import torch
 import warnings
 from typing import List, Optional, Union
 
@@ -59,9 +60,9 @@ class FunasrNanoProcessor(ProcessorMixin):
         feature_extractor=None,
         tokenizer=None,
         chat_template=None,
-        audio_token="!",
-        audio_bos_token="<|startofspeech|>",
-        audio_eos_token="<|endofspeech|>",
+        audio_token="<|vision_pad|>",
+        audio_bos_token="<|vision_start|>",
+        audio_eos_token="<|vision_end|>",
         placeholder_token="<placeholder>",
     ):
         if chat_template is None:
@@ -84,9 +85,9 @@ class FunasrNanoProcessor(ProcessorMixin):
     ) -> BatchFeature:
         """
         Main method to prepare for the model one or several sequences(s) and audio(s). This method forwards the `text`
-        and `kwargs` arguments to ParrotSenseVoiceTokenizerFast's [`~ParrotSenseVoiceTokenizerFast.__call__`] if `text` is not `None` to encode
+        and `kwargs` arguments to Qwen2TokenizerFast's [`~Qwen2TokenizerFast.__call__`] if `text` is not `None` to encode
         the text. To prepare the audio(s), this method forwards the `audios` and `kwrags` arguments to
-        ParrotSenseVoiceFeatureExtractor's [`~ParrotSenseVoiceFeatureExtractor.__call__`] if `audios` is not `None`. Please refer to the doctsring
+        FunasrNanoFeatureExtractor's [`~FunasrNanoFeatureExtractor.__call__`] if `audios` is not `None`. Please refer to the doctsring
         of the above two methods for more information.
 
         Args:
@@ -144,7 +145,6 @@ class FunasrNanoProcessor(ProcessorMixin):
 
             for sample in text:
                 replace_str = []
-                # TODO: audio_token '!' is too simple, we should use a more complex pattern.
                 while self.audio_token in sample:
                     audio_length = audio_lengths.pop(0)
                     num_audio_tokens = audio_length
@@ -164,18 +164,26 @@ class FunasrNanoProcessor(ProcessorMixin):
                     )
 
                     # Check if this audio token is surrounded by bos/eos tokens
-                    if not has_bos and not has_eos:
-                        expanded_audio_token = self.audio_bos_token + expanded_audio_token + self.audio_eos_token
+                    # if not has_bos and not has_eos:
+                    #     expanded_audio_token = self.audio_bos_token + expanded_audio_token + self.audio_eos_token
 
                     replace_str.append(expanded_audio_token)
                     sample = sample.replace(self.audio_token, self.placeholder_token, 1)
 
                 while self.placeholder_token in sample:
                     sample = sample.replace(self.placeholder_token, replace_str.pop(0), 1)
+                # token_str: "<|vision_start|>", token_id: 151652
+                # token_str: "<|vision_end|>", token_id: 151653
+                sample = sample.replace("<|vision_start|>", "")
+                sample = sample.replace("<|vision_end|>", "")
                 expanded_text.append(sample)
             text = expanded_text
 
         inputs = self.tokenizer(text, padding=padding, **kwargs)
+        # token_str: "<|vision_pad|>", token_id: 151654
+        # token_str: "!", token_id: 0
+        # replace token id of "<|vision_pad|>" with audio_token_index=0, since audio_token_index=0 is not a special token
+        inputs['input_ids'] = torch.where(inputs['input_ids'] == 151654, 0, inputs['input_ids'])
 
         if audio is not None:
             inputs.update(audio_inputs)
@@ -243,7 +251,7 @@ class FunasrNanoProcessor(ProcessorMixin):
                     "{% for content in message['content'] %}"
                         "{% if 'audio' in content or 'audio_url' in content or content['type'] == 'audio' %}"
                             "{% set audio_count.value = audio_count.value + 1 %}"
-                            "<|startofspeech|>!<|endofspeech|>"
+                            "<|vision_start|><|vision_pad|><|vision_end|>"
                         "{% elif 'text' in content %}"
                             "{{ content['text'] }}"
                         "{% endif %}"
