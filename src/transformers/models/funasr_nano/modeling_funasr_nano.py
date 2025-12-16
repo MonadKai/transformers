@@ -596,7 +596,7 @@ class FunasrNanoForConditionalGeneration(FunasrNanoPreTrainedModel, GenerationMi
             # 2. Merge text and audios
             if input_features is not None and input_ids.shape[1] != 1:
                 # TODO: currently audio_outputs is a tuple, refine it to BaseModelOutput
-                selected_audio_feature, audio_output_lengths = self.audio_tower(input_features, feature_attention_mask.sum(-1))
+                selected_audio_feature, audio_output_lengths = self.audio_tower(input_features, audio_feature_lengths=feature_attention_mask.sum(-1))
                 audio_features = self.multi_modal_projector(selected_audio_feature, audio_output_lengths)
 
                 # if we have consecutive audio tokens, then it means we expanded input_ids in processing
